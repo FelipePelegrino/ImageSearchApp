@@ -3,4 +3,5 @@
     <string name="errorText">Results could not be loaded</string>
     <string name="retryBtn">Retry</string>
     <string name="emptyText">No results found for this query</string>
+    <string name="itemMenuSearch">Search</string>
 </resources>
