@@ -23,9 +23,11 @@ class GalleryFragment: Fragment(R.layout.fragment_gallery) {
         adapter = UnsplashPhotoAdapter()
         binding.apply {
             galleryRv.setHasFixedSize(true)
-            galleryRv.adapter = adapter
+            galleryRv.adapter = adapter.withLoadStateHeaderAndFooter(
+                header = UnsplashPhotoLoadStateAdapter { adapter.retry() },
+                footer = UnsplashPhotoLoadStateAdapter { adapter.retry() }
+            )
         }
-
         setObservers()
     }
 
