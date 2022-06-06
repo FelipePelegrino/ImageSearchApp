@@ -5,8 +5,10 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.paging.LoadState
 import com.codinginflow.imagesearchapp.R
 import com.codinginflow.imagesearchapp.databinding.FragmentGalleryBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,11 +28,33 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         adapter = UnsplashPhotoAdapter()
         binding.apply {
             galleryRv.setHasFixedSize(true)
+            galleryRv.itemAnimator = null
             galleryRv.adapter = adapter.withLoadStateHeaderAndFooter(
                 header = UnsplashPhotoLoadStateAdapter { adapter.retry() },
                 footer = UnsplashPhotoLoadStateAdapter { adapter.retry() }
             )
+
+            adapter.addLoadStateListener { loadState ->
+                galleryPbr.isVisible = loadState.source.refresh is LoadState.Loading
+                galleryRv.isVisible = loadState.source.refresh is LoadState.NotLoading
+                retryBtn.isVisible = loadState.source.refresh is LoadState.Error
+                errorTv.isVisible = loadState.source.refresh is LoadState.Error
+
+                //empty view
+                if (loadState.source.refresh is LoadState.NotLoading
+                    && loadState.append.endOfPaginationReached
+                    && adapter.itemCount < 1
+                ) {
+                    galleryRv.isVisible = false
+                    emptyTv.isVisible = true
+                } else {
+                    emptyTv.isVisible = false
+                }
+            }
+
+            retryBtn.setOnClickListener { adapter.retry() }
         }
+
         setObservers()
         setHasOptionsMenu(true)
     }
