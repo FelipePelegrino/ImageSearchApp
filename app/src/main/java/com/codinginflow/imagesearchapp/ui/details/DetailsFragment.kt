@@ -14,20 +14,30 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.codinginflow.imagesearchapp.R
+import com.codinginflow.imagesearchapp.data.UnsplashPhoto
 import com.codinginflow.imagesearchapp.databinding.FragmentDetailsBinding
 
 class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     private val args by navArgs<DetailsFragmentArgs>()
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentDetailsBinding.bind(view)
+        val photo = args.photo
+        loadImage(photo)
+        loadDetails(photo)
+    }
 
-        val binding = FragmentDetailsBinding.bind(view)
-
+    private fun loadImage(photo: UnsplashPhoto) {
         binding.apply {
-            val photo = args.photo
-
             Glide.with(this@DetailsFragment)
                 .load(photo.urls.full)
                 .error(R.drawable.ic_error)
@@ -56,7 +66,11 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                     }
                 })
                 .into(imageIv)
+        }
+    }
 
+    private fun loadDetails(photo: UnsplashPhoto) {
+        binding.apply {
             descriptionTv.text = photo.description
 
             val uri = Uri.parse(photo.user.attributionUrl)
